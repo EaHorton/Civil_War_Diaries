@@ -105,3 +105,23 @@ diary.top.terms %>%
   scale_y_reordered() 
 
 ```
+
+```{r}
+diary.lda <- LDA(diary.dtm, k = 17, control = list(seed = 12345))
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:7)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
