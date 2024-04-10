@@ -125,3 +125,51 @@ diary.top.terms %>%
   facet_wrap(~ topic, scales = "free") +
   scale_y_reordered()
 ```
+
+```{r}
+diary_whole_unnest %>%
+  count(word, sort = TRUE)
+```
+
+```{r}
+diary_whole_unnest %>%
+  filter(word %in% c("war", "peace")) %>% 
+  count(year, word)
+```
+
+```{r}
+library(ggplot2)
+
+diary_whole_unnest %>%
+  filter(word %in% c("war", "peace")) %>% 
+  count(year, word) %>% 
+  ggplot(aes(year, n, fill = word)) +
+    geom_col(position = "fill")
+```
+
+```{r}
+diary_whole_unnest %>%
+  count(month, year, file_name)  %>% 
+  group_by(month, year) %>% 
+  summarize(avg_words = mean(n)) %>% 
+  arrange(desc(avg_words))
+```
+
+```{r}
+diary_whole_freq <- diary_whole_unnest %>%
+  count(file_name, word, sort = T)  %>%# count occurrence of word and sort descending
+  group_by(file_name) %>% 
+  mutate(n_tot = sum(n), # count total number of words per doc
+         term_freq = n/n_tot)
+```
+
+```{r}
+diary_whole_unnest %>%
+  count(name, word)  %>%  # count n for each word
+  group_by(name) %>% 
+  mutate(n_tot = sum(n), # count total number of words per doc
+         term_freq = n/n_tot) %>% 
+  arrange(desc(term_freq)) %>% # sort by term frequency
+  top_n(1) %>%  # take the top for each president
+  print(n = Inf) # print all rows
+```
