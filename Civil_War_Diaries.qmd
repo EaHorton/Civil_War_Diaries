@@ -64,7 +64,7 @@ diary_whole <- full_join(diary.metadata, diary_texts, by = c("file_name" = "doc_
 
 ```{r}
 
-stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") 
+stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="home", lexicon="NA") %>% add_row(word="phil", lexicon="NA") %>% add_row(word="chesnut", lexicon="NA") %>% add_row(word="willie", lexicon="NA") %>% add_row(word="mary", lexicon="NA")
 #
 diary_whole_unnest <- diary_whole %>% 
   unnest_tokens(word, text)  %>% 
@@ -115,7 +115,7 @@ head(diary.topics)
 
 diary.top.terms <- diary.topics %>%
   arrange(desc(beta)) %>% 
-  group_by(topic) %>% slice(1:7)
+  group_by(topic) %>% slice(1:5)
 
 
 diary.top.terms %>%
@@ -238,5 +238,21 @@ diary_whole_unnest_stem <- diary_whole_unnest %>%
 ```
 
 ```{r}
+diary.lda <- LDA(diary.dtm, k = 20, control = list(seed = 12345))
+diary.lda
 
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:5)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
 ```
