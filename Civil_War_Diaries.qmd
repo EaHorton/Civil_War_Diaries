@@ -195,3 +195,48 @@ diary_whole_unnest %>%
   top_n(1) %>%  # take the top for each president
   print(n = Inf) # print all rows
 ```
+
+```{r}
+diary_whole_unnest %>%
+  filter(word %in% c("god", "yankees")) %>% 
+  count(year, word) %>% 
+  ggplot(aes(year, n, fill = word)) +
+    geom_col(position = "fill")
+```
+
+```{r}
+diary_whole_unnest %>%
+  filter(word %in% c("lord", "yankees")) %>% 
+  count(year, word) %>% 
+  ggplot(aes(year, n, fill = word)) +
+    geom_col(position = "fill")
+```
+
+```{r}
+diary_whole_unnest %>%
+  filter(word %in% c("poor", "hope")) %>% 
+  count(year, word) %>% 
+  ggplot(aes(year, n, fill = word)) +
+    geom_col(position = "fill")
+```
+
+```{r}
+diary_whole_unnest %>%
+  count(month, year, word)  %>%  # count n for each word
+  group_by(month) %>% 
+  mutate(n_tot = sum(n), # count total number of words per doc
+         term_freq = n/n_tot) %>% 
+  arrange(desc(term_freq)) %>% # sort by term frequency
+  top_n(1) %>%  # take the top for each president
+  print(n = Inf) # print all rows
+```
+
+```{r}
+library(SnowballC)
+diary_whole_unnest_stem <- diary_whole_unnest %>%
+        mutate(word_stem = wordStem(word))
+```
+
+```{r}
+
+```
