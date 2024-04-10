@@ -1,0 +1,107 @@
+---
+title: "Civil_War_Diaries"
+name: Addison Horton
+---
+
+## Confederate Women Diaries
+
+```{r}
+library(tidyverse)
+library(tidytext) 
+library(readtext)
+library(widyr)
+library(SnowballC)
+library(tidytext)
+library(tidyverse)
+library(readtext)
+library(tm)
+library(topicmodels)
+library(readr)
+```
+
+```{r}
+#zip file of all the .txt files. One for each issue. 
+#download.file("https://github.com/dseefeldt/IndianaNewspapers/raw/main/bb-txt.zip", "bb-txt.zip")
+#unzip("bb-txt.zip")
+
+#diary.files <- read.csv("Files-Grid view.csv")
+
+#zip file of all the .txt files. One for each issue. 
+unzip("diary-txt.zip")
+
+
+```
+
+```{r}
+# Metadata that includes info about each article.
+diary.metadata <- read.csv("Meta-Grid view.csv")
+```
+
+```{r}
+
+#txt.files <- readtext(file.path("/txt""))
+#txt.files <- txt.files %>% 
+  #arrange(doc_id)
+file_paths <- list.files("text files/")
+diary_texts <- readtext(paste("text files/", "*.txt", sep = ""))
+
+diary_whole <- full_join(diary.metadata, diary_texts, by = c("file_name" = "doc_id")) %>% as_tibble()
+
+#data_dir_diary <- paste(getwd(), "/txt", sep = "")
+#diary_files <- readtext(paste0(data_dir_diary, "/*.txt"))
+
+#read_delim(diary.files, col_names = txt_files)
+
+#merged.diary <- merge(diary_files, diary.metadata, by="file_name", all=TRUE)
+
+#diary_whole <- 
+#  diary.metadata %>%  
+ # arrange(file_name) %>% # sort metadata
+ # bind_cols(diary.files) %>% # combine with texts
+ # as_tibble() # convert to tibble for better screen viewing
+
+```
+
+```{r}
+
+stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA") 
+#
+diary_whole_unnest <- diary_whole %>% 
+  unnest_tokens(word, text)  %>% 
+ filter(str_detect(word, "[a-z']$"))  %>%
+  anti_join(stop_words_custom)# eliminates stop words 
+
+ diary_whole_unnest <- diary_whole_unnest %>% filter(!grepl('[0-9]', word))
+
+
+#diary.whole.n.count <- diary_whole_tidy %>%
+#  count(word, sort = TRUE)
+```
+
+```{r}
+diary.dtm <- diary_whole_unnest %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+```
+
+```{r}
+diary.lda <- LDA(diary.dtm, k = 30, control = list(seed = 12345))
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:5)
+```
+
+```{r}
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered() 
+
+```
