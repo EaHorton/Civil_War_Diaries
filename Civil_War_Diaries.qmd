@@ -382,7 +382,7 @@ model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,win
 ```
 
 ```{r}
-model %>% closest_to("yankee")
+model %>% closest_to("negroe")
 ```
 
 ```{r}
@@ -417,7 +417,7 @@ sapply(sample(1:centers,10),function(n) {
 ```
 
 ```{r}
-people = c("mother","father","yankee","negro")
+people = c("mother","father","yankee","negroe")
 term_set = lapply(people, 
        function(people) {
           nearest_words = model %>% closest_to(model[[people]],20)
@@ -429,4 +429,17 @@ subset %>%
   as.dist %>%
   hclust %>%
   plot
+```
+
+```{r}
+side = model[[c("confederacy","yankee"),average=F]]
+# model[1:3000,] here restricts to the 3000 most common words in the set.
+confederacy_union = model[1:3000,] %>% cosineSimilarity(side)
+# Filter to the top 20 sweet or salty.
+confederacy_union = confederacy_union[
+  rank(-confederacy_union[,1])<20 |
+  rank(-confederacy_union[,2])<20,
+  ]
+plot(confederacy_union,type='n')
+text(confederacy_union,labels=rownames(confederacy_union))
 ```
