@@ -241,6 +241,9 @@ diary_whole_unnest_stem <- diary_whole_unnest %>%
 diary.lda <- LDA(diary.dtm, k = 20, control = list(seed = 12345))
 diary.lda
 
+#10 to 12 range - add miss mrs mister to stopwords - before look at miss vs mrs
+#10 or less, better specificity 
+
 diary.topics <- tidy(diary.lda, matrix = "beta")
 head(diary.topics)
 
@@ -359,4 +362,71 @@ diary.top.terms %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   scale_y_reordered()
+```
+
+```{r}
+devtools::install_github("bmschmidt/wordVectors")
+library(wordVectors)
+library(tidyverse)
+```
+
+```{r}
+prep_word2vec(origin="text files",destination="textfiles.txt",lowercase=T,bundle_ngrams=1)
+```
+
+```{r}
+model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,window=12,iter=3,negative_samples=5)
+
+#play with vectors numbers and window (try going smaller and larger)
+#also look at iterations
+```
+
+```{r}
+model %>% closest_to("yankee")
+```
+
+```{r}
+wowords <- model[[c("female", "females", "women", "woman", "feminine", "she", "woman's")]] %>% reject(model[[c("male", "males", "men", "man", "masculine", "he", "men's")]])
+model %>% nearest_to(wowords, 100)
+
+```
+
+```{r}
+mewords <- model[[c("male", "males", "men", "man", "masculine", "he", "men's", "man's")]] %>% reject(model[[c("female", "females", "women", "woman", "feminine", "she", "woman's", "women's")]])
+model %>% nearest_to(mewords, 100)
+```
+
+```{r}
+yankee_words = closest_to(model,model[[c("yankee","federal","evacuate", "officer")]],150)
+yankee = model[[yankee_words$word,average=F]]
+plot(yankee,method="pca")
+```
+
+```{r}
+set.seed(10)
+centers = 150
+clustering = kmeans(model,centers=centers,iter.max = 40)
+
+
+```
+
+```{r}
+sapply(sample(1:centers,10),function(n) {
+  names(clustering$cluster[clustering$cluster==n][1:10])
+})
+```
+
+```{r}
+people = c("mother","father","yankee","negro")
+term_set = lapply(people, 
+       function(people) {
+          nearest_words = model %>% closest_to(model[[people]],20)
+          nearest_words$word
+        }) %>% unlist
+subset = model[[term_set,average=F]]
+subset %>%
+  cosineDist(subset) %>% 
+  as.dist %>%
+  hclust %>%
+  plot
 ```
