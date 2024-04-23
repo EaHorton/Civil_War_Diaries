@@ -17,6 +17,10 @@ library(readtext)
 library(tm)
 library(topicmodels)
 library(readr)
+library(ggplot2)
+devtools::install_github("bmschmidt/wordVectors")
+library(wordVectors)
+library(tidyverse)
 ```
 
 ```{r}
@@ -417,6 +421,14 @@ sapply(sample(1:centers,10),function(n) {
 ```
 
 ```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
 people = c("mother","father","yankee","negroe")
 term_set = lapply(people, 
        function(people) {
@@ -507,6 +519,99 @@ head(diary.topics)
 diary.top.terms <- diary.topics %>%
   arrange(desc(beta)) %>% 
   group_by(topic) %>% slice(1:10)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+```{r}
+diary_post_1863 <- diary_whole_unnest %>% filter(year >= 1863)
+
+diary.dtm <- diary_post_1863 %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+
+diary.lda <- LDA(diary.dtm, k = 14, control = list(seed = 12345),  method = "Gibbs", alpha = .9)
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:10)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+```{r}
+people = c("gentleman","gentlemen","yankees","confederate")
+term_set = lapply(people, 
+       function(people) {
+          nearest_words = model %>% closest_to(model[[people]],20)
+          nearest_words$word
+        }) %>% unlist
+subset = model[[term_set,average=F]]
+subset %>%
+  cosineDist(subset) %>% 
+  as.dist %>%
+  hclust %>%
+  plot
+```
+
+```{r}
+diary_young <- diary_whole_unnest %>% filter(name == "Sarah Morgan Dawson" | name == "Eliza Frances Andrews" | name == "Belle Edmondson" | name == "Emma LeConte" | name == "Sarah Lois Wadley" | name == "Kate S. Carney" | name == "Susan R. Jervey")
+
+diary.dtm <- diary_young %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+
+diary.lda <- LDA(diary.dtm, k = 8, control = list(seed = 12345),  method = "Gibbs", alpha = .9)
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:8)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+```{r}
+diary_old <- diary_whole_unnest %>% filter(name == "Dolly Sumner Lunt" | name == "Anita Dwyer Withers" | name == "Mary Boykin Chesnut" | name == "Meta Morris Grimball" | name == "Frances Woolfolk Wallace" | name == "Mary Jeffreys Bethell" | name == "Julia Johnson Fisher")
+
+diary.dtm <- diary_old %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+
+diary.lda <- LDA(diary.dtm, k = 9, control = list(seed = 12345),  method = "Gibbs", alpha = .9)
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:8)
 
 
 diary.top.terms %>%
