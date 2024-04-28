@@ -1,0 +1,120 @@
+# Growing in Harsh Conditions: A Study of Confederate Women during the Civil War
+
+### Addison Horton — Hist 8510 — Spring 2024
+
+When Emily Virginia Semple was four years old, she was running around the yard at her family’s home in Alabama. Her sunbonnet kept falling over her eyes, and her father, afraid that she would “\[butt her\] brains out” told her to take it off. It was hindering her. Before she could, however, her mother intervened. She was worried about the “ill effects of sunlight on the girl’s white complexion,” and, after a brief argument, Emily’s bonnet remained on her head. Emily was not a delicate flower. She ran and played, bruising her body in the process, and her father not only allowed it but encouraged it. It was her mother who disciplined the girl, ensuring she abided by societal expectations. 
+
+This scene at Emily’s home predated the Civil War, but Antebellum culture greatly influenced how Confederate women reacted to Union troops invading their towns, homes, and bodies. In April of 1861, with the outbreak of the Civil War, Confederate women’s lives changed dramatically. Not only were their brothers, fathers, and husbands often absent, but their lives served as the fourth front of the war. While men fought on the battlefield, women fought the “domestic war.” The ways they responded to their Union enemy depended on two considerations – whether they perceived these men as honorable and the age of the woman.
+
+#### Prepping the Data
+
+```{r}
+library(tidyverse)
+library(tidytext) 
+library(readtext)
+library(widyr)
+library(SnowballC)
+library(tidytext)
+library(tidyverse)
+library(readtext)
+library(tm)
+library(topicmodels)
+library(readr)
+library(ggplot2)
+devtools::install_github("bmschmidt/wordVectors")
+library(wordVectors)
+library(tidyverse)
+```
+
+The corpus for this work consists of 14 Civil War diaries, written by elite Confederate white women. They are not representative of all Southern women, yet this study is still valuable for understanding the complexities of women's wartime experience.
+
+```{r}
+#zip file of all the .txt files. One for each month of diary entries. 
+unzip("diary-txt.zip")
+
+# Metadata that includes info about each month of diary entries.
+diary.metadata <- read.csv("Meta-Grid view.csv")
+
+#reading in the data
+file_paths <- list.files("text files/")
+diary_texts <- readtext(paste("text files/", "*.txt", sep = ""))
+
+#joining the data
+diary_whole <- full_join(diary.metadata, diary_texts, by = c("file_name" = "doc_id")) %>% as_tibble()
+```
+
+The stop word list for this data is rather lengthy, as months, days, and proper names not belonging to political figures or prominent military personnel were removed.
+
+```{r}
+stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="home", lexicon="NA") %>% add_row(word="phil", lexicon="NA") %>% add_row(word="chesnut", lexicon="NA") %>% add_row(word="willie", lexicon="NA") %>% add_row(word="mary", lexicon="NA") %>% add_row(word="yesterday", lexicon="NA") %>% add_row(word="time", lexicon="NA") %>% add_row(word="laura", lexicon="NA") %>% add_row(word="lou", lexicon="NA") %>% add_row(word="kate", lexicon="NA") %>% add_row(word="charlie", lexicon="NA") %>% add_row(word="anna", lexicon="NA") %>% add_row(word="grimball", lexicon="NA") %>% add_row(word="william", lexicon="NA") %>% add_row(word="gibbes", lexicon="NA") %>% add_row(word="bettie", lexicon="NA")
+
+
+diary_whole_unnest <- diary_whole %>% 
+  unnest_tokens(word, text)  %>% 
+ filter(str_detect(word, "[a-z']$"))  %>%
+  anti_join(stop_words_custom)# eliminates stop words 
+```
+
+In the final step of preparation, words were unnested.
+
+```{r}
+diary.dtm <- diary_whole_unnest %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+```
+
+### Age as a Factor 
+
+### 
+
+```{r}
+diary_young <- diary_whole_unnest %>% filter(name == "Sarah Morgan Dawson" | name == "Eliza Frances Andrews" | name == "Belle Edmondson" | name == "Emma LeConte" | name == "Sarah Lois Wadley" | name == "Kate S. Carney" | name == "Susan R. Jervey")
+
+diary.dtm <- diary_young %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+
+diary.lda <- LDA(diary.dtm, k = 13, control = list(seed = 12345),  method = "Gibbs", alpha = .5)
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:8)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+```{r}
+diary_old <- diary_whole_unnest %>% filter(name == "Dolly Sumner Lunt" | name == "Anita Dwyer Withers" | name == "Mary Boykin Chesnut" | name == "Meta Morris Grimball" | name == "Frances Woolfolk Wallace" | name == "Mary Jeffreys Bethell" | name == "Julia Johnson Fisher")
+
+diary.dtm <- diary_old %>% 
+  count(file_name, word) %>% 
+  cast_dtm(file_name, word, n)
+
+diary.lda <- LDA(diary.dtm, k = 9, control = list(seed = 12345),  method = "Gibbs", alpha = .9)
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:8)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
