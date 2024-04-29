@@ -2,9 +2,11 @@
 
 ### Addison Horton — Hist 8510 — Spring 2024
 
-Early in the semester, I came across a number of diaries written by Confederate women during the Civil War. I was excited about the prospect of using this material but quickly realized that it was far too large a corpus for me to read in its entirety in the span of a few months. So, I did what any digital historian would do and turned to digital tools. Through word vector analysis and topic modeling, I was able to identify themes of honor and religion, and explore how age was an important consideration in both of these observations. None of this would have been possible without grounding myself in the texts themselves.
+Early in the semester, I came across a number of diaries written by Confederate women during the American Civil War. I was excited about the prospect of using this material but quickly realized that it was far too large a corpus for me to read in its entirety in the span of a few months. So, I did what any digital historian would do and turned to digital tools. Through word vector analysis and topic modeling, I was able to identify themes of honor and religion, and explore how age was an important consideration in both of these conversations. None of this would have been possible, however, without grounding myself in the texts themselves.
 
 #### Prepping the Data
+
+The first thing I did was load the necessary packages for word vector analysis and topic modeling.
 
 ```{r}
 library(tidyverse)
@@ -24,7 +26,9 @@ library(wordVectors)
 library(tidyverse)
 ```
 
-The corpus for this work consists of 14 Civil War diaries, written by elite Confederate white women. They are not representative of all Southern women, yet this study is still valuable for understanding the complexities of women's wartime experience.
+The corpus for this work consists of 14 Civil War diaries, written by elite Confederate white women. They are not representative of all Southern women, yet this study is still valuable for understanding the complexities of women's wartime experience. It is commonly held that the Civil War was a three front war, but these personal writings suggest that these women's lives at home served as a fourth. While men fought on the battlefield, Confederate women fought the “domestic war.”[^delicate_flowers_vignette-1]
+
+[^delicate_flowers_vignette-1]: Lisa Tendrich Frank, The Civilian War: Confederate Women and Union Soldiers during Sherman’s March. (Baton Rouge, LA: Louisiana State University Press, 2015), 4-5.
 
 ```{r}
 #zip file of all the .txt files. One for each month of diary entries. 
@@ -41,7 +45,7 @@ diary_texts <- readtext(paste("text files/", "*.txt", sep = ""))
 diary_whole <- full_join(diary.metadata, diary_texts, by = c("file_name" = "doc_id")) %>% as_tibble()
 ```
 
-The stop word list for this data is rather lengthy, as months, days, and proper names not belonging to political figures or prominent military personnel were removed.
+The stop word list for this data is rather lengthy, as months, days, and proper names not belonging to political figures or prominent military personnel were removed. Then the words were unnested.
 
 ```{r}
 stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="home", lexicon="NA") %>% add_row(word="phil", lexicon="NA") %>% add_row(word="chesnut", lexicon="NA") %>% add_row(word="willie", lexicon="NA") %>% add_row(word="mary", lexicon="NA") %>% add_row(word="yesterday", lexicon="NA") %>% add_row(word="time", lexicon="NA") %>% add_row(word="laura", lexicon="NA") %>% add_row(word="lou", lexicon="NA") %>% add_row(word="kate", lexicon="NA") %>% add_row(word="charlie", lexicon="NA") %>% add_row(word="anna", lexicon="NA") %>% add_row(word="grimball", lexicon="NA") %>% add_row(word="william", lexicon="NA") %>% add_row(word="gibbes", lexicon="NA") %>% add_row(word="bettie", lexicon="NA")
@@ -51,19 +55,23 @@ diary_whole_unnest <- diary_whole %>%
   unnest_tokens(word, text)  %>% 
  filter(str_detect(word, "[a-z']$"))  %>%
   anti_join(stop_words_custom)# eliminates stop words 
-```
 
-In the final step of preparation, words were unnested.
-
-```{r}
 diary.dtm <- diary_whole_unnest %>% 
   count(file_name, word) %>% 
   cast_dtm(file_name, word, n)
 ```
 
-### Age as a Factor 
+### Word Embedding
 
-### 
+```{r}
+
+
+prep_word2vec(origin="text files",destination="textfiles.txt",lowercase=T,bundle_ngrams=1)
+
+model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,window=12,iter=3,negative_samples=5)
+```
+
+### Age as a Factor 
 
 ```{r}
 diary_young <- diary_whole_unnest %>% filter(name == "Sarah Morgan Dawson" | name == "Eliza Frances Andrews" | name == "Belle Edmondson" | name == "Emma LeConte" | name == "Sarah Lois Wadley" | name == "Kate S. Carney" | name == "Susan R. Jervey")

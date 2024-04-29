@@ -68,7 +68,7 @@ diary_whole <- full_join(diary.metadata, diary_texts, by = c("file_name" = "doc_
 
 ```{r}
 
-stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="home", lexicon="NA") %>% add_row(word="phil", lexicon="NA") %>% add_row(word="chesnut", lexicon="NA") %>% add_row(word="willie", lexicon="NA") %>% add_row(word="mary", lexicon="NA") %>% add_row(word="yesterday", lexicon="NA") %>% add_row(word="time", lexicon="NA") 
+stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="home", lexicon="NA") %>% add_row(word="phil", lexicon="NA") %>% add_row(word="chesnut", lexicon="NA") %>% add_row(word="willie", lexicon="NA") %>% add_row(word="mary", lexicon="NA") %>% add_row(word="yesterday", lexicon="NA") %>% add_row(word="time", lexicon="NA") %>% add_row(word="laura", lexicon="NA") %>% add_row(word="lou", lexicon="NA") %>% add_row(word="kate", lexicon="NA") %>% add_row(word="charlie", lexicon="NA") %>% add_row(word="anna", lexicon="NA") %>% add_row(word="grimball", lexicon="NA") %>% add_row(word="william", lexicon="NA") %>% add_row(word="gibbes", lexicon="NA") %>% add_row(word="bettie", lexicon="NA")
 #
 diary_whole_unnest <- diary_whole %>% 
   unnest_tokens(word, text)  %>% 
@@ -444,7 +444,7 @@ subset %>%
 ```
 
 ```{r}
-side = model[[c("confederacy","yankee"),average=F]]
+side = model[[c("peace","poor"),average=F]]
 # model[1:3000,] here restricts to the 3000 most common words in the set.
 confederacy_union = model[1:3000,] %>% cosineSimilarity(side)
 # Filter to the top 20 sweet or salty.
@@ -463,7 +463,7 @@ plot(yankee,method="pca")
 ```
 
 ```{r}
-side = model[[c("confederacy","yankee"),average=F]]
+side = model[[c("sherman","butler"),average=F]]
 # model[1:3000,] here restricts to the 3000 most common words in the set.
 confederacy_union = model[1:3000,] %>% cosineSimilarity(side)
 # Filter to the top 20 sweet or salty.
@@ -577,7 +577,7 @@ diary.dtm <- diary_young %>%
   count(file_name, word) %>% 
   cast_dtm(file_name, word, n)
 
-diary.lda <- LDA(diary.dtm, k = 8, control = list(seed = 12345),  method = "Gibbs", alpha = .9)
+diary.lda <- LDA(diary.dtm, k = 13, control = list(seed = 12345),  method = "Gibbs", alpha = .5)
 diary.lda
 
 diary.topics <- tidy(diary.lda, matrix = "beta")
@@ -620,4 +620,8 @@ diary.top.terms %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   scale_y_reordered()
+```
+
+```{r}
+
 ```
