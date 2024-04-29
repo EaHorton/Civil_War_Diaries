@@ -2,9 +2,7 @@
 
 ### Addison Horton — Hist 8510 — Spring 2024
 
-When Emily Virginia Semple was four years old, she was running around the yard at her family’s home in Alabama. Her sunbonnet kept falling over her eyes, and her father, afraid that she would “\[butt her\] brains out” told her to take it off. It was hindering her. Before she could, however, her mother intervened. She was worried about the “ill effects of sunlight on the girl’s white complexion,” and, after a brief argument, Emily’s bonnet remained on her head. Emily was not a delicate flower. She ran and played, bruising her body in the process, and her father not only allowed it but encouraged it. It was her mother who disciplined the girl, ensuring she abided by societal expectations. 
-
-This scene at Emily’s home predated the Civil War, but Antebellum culture greatly influenced how Confederate women reacted to Union troops invading their towns, homes, and bodies. In April of 1861, with the outbreak of the Civil War, Confederate women’s lives changed dramatically. Not only were their brothers, fathers, and husbands often absent, but their lives served as the fourth front of the war. While men fought on the battlefield, women fought the “domestic war.” The ways they responded to their Union enemy depended on two considerations – whether they perceived these men as honorable and the age of the woman.
+Early in the semester, I came across a number of diaries written by Confederate women during the Civil War. I was excited about the prospect of using this material but quickly realized that it was far too large a corpus for me to read in its entirety in the span of a few months. So, I did what any digital historian would do and turned to digital tools. Through word vector analysis and topic modeling, I was able to identify themes of honor and religion, and explore how age was an important consideration in both of these observations. None of this would have been possible without grounding myself in the texts themselves.
 
 #### Prepping the Data
 
