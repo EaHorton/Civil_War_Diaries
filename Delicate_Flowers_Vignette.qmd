@@ -2,7 +2,7 @@
 
 ### Addison Horton — Hist 8510 — Spring 2024
 
-Early in the semester, I came across a number of diaries written by Confederate women during the American Civil War. I was excited about the prospect of using this material but quickly realized that it was far too large a corpus for me to read in its entirety in the span of a few months. So, I did what any digital historian would do and turned to digital tools. Through word vector analysis and topic modeling, I was able to identify themes of honor and religion, and explore how age was an important consideration in both of these conversations. None of this would have been possible, however, without grounding myself in the texts themselves.
+Early in the semester, I came across a number of diaries written by Confederate women during the American Civil War. I was excited about the prospect of using this material but quickly realized that it was far too large a corpus for me to read in its entirety in the span of a few months. So, I did what any digital historian would do and turned to digital tools. Through word vector analysis and topic modeling, I was able to identify age as a crucial consideration when studying elite white women's reactions to the war.
 
 #### Prepping the Data
 
@@ -26,7 +26,7 @@ library(wordVectors)
 library(tidyverse)
 ```
 
-The corpus for this work consists of 14 Civil War diaries, written by elite Confederate white women. They are not representative of all Southern women, yet this study is still valuable for understanding the complexities of women's wartime experience. It is commonly held that the Civil War was a three front war, but these personal writings suggest that these women's lives at home served as a fourth. While men fought on the battlefield, Confederate women fought the “domestic war.”[^delicate_flowers_vignette-1]
+The corpus for this work consists of 14 Civil War diaries, written by elite Confederate white women. They are not representative of all Southern women, yet this study is still valuable for understanding the complexities of women's wartime experience. It is commonly held that the Civil War was a three front war, but these personal writings suggest that these women's homes served as a fourth. While men fought on the battlefield, Confederate women fought the “domestic war.”[^delicate_flowers_vignette-1]
 
 [^delicate_flowers_vignette-1]: Lisa Tendrich Frank, The Civilian War: Confederate Women and Union Soldiers during Sherman’s March. (Baton Rouge, LA: Louisiana State University Press, 2015), 4-5.
 
@@ -45,7 +45,7 @@ diary_texts <- readtext(paste("text files/", "*.txt", sep = ""))
 diary_whole <- full_join(diary.metadata, diary_texts, by = c("file_name" = "doc_id")) %>% as_tibble()
 ```
 
-The stop word list for this data is rather lengthy, as months, days, and proper names not belonging to political figures or prominent military personnel were removed. Then the words were unnested.
+The stop words list for this data is rather lengthy, as months, days, and most proper names not belonging to political figures or prominent military personnel were removed.
 
 ```{r}
 stop_words_custom <- stop_words %>% add_row(word="january", lexicon="NA") %>% add_row(word="february", lexicon="NA") %>% add_row(word="march", lexicon="NA") %>% add_row(word="april", lexicon="NA") %>% add_row(word="may", lexicon="NA") %>% add_row(word="june", lexicon="NA") %>% add_row(word="july", lexicon="NA") %>% add_row(word="august", lexicon="NA") %>% add_row(word="septmeber", lexicon="NA") %>% add_row(word="october", lexicon="NA") %>% add_row(word="november", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="day", lexicon="NA") %>% add_row(word="december", lexicon="NA")  %>% add_row(word="morning", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="evening", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="december", lexicon="NA") %>% add_row(word="miriam", lexicon="NA") %>% add_row(word="home", lexicon="NA") %>% add_row(word="phil", lexicon="NA") %>% add_row(word="chesnut", lexicon="NA") %>% add_row(word="willie", lexicon="NA") %>% add_row(word="mary", lexicon="NA") %>% add_row(word="yesterday", lexicon="NA") %>% add_row(word="time", lexicon="NA") %>% add_row(word="laura", lexicon="NA") %>% add_row(word="lou", lexicon="NA") %>% add_row(word="kate", lexicon="NA") %>% add_row(word="charlie", lexicon="NA") %>% add_row(word="anna", lexicon="NA") %>% add_row(word="grimball", lexicon="NA") %>% add_row(word="william", lexicon="NA") %>% add_row(word="gibbes", lexicon="NA") %>% add_row(word="bettie", lexicon="NA")
@@ -61,17 +61,66 @@ diary.dtm <- diary_whole_unnest %>%
   cast_dtm(file_name, word, n)
 ```
 
-### Word Embedding
+### Reading the Texts
+
+In order to responsibly text mine this data, I had to ground myself in the text. For me, this meant reading a number of the diaries in my corpus cover to cover to get a feel for what they talked about, how they felt, etc. I was immediately struck by the brazen defiance of some of these women. Consider, for instance, Sarah Morgan Dawson. She lived in Louisiana during the war, and, when the Union army took New Orleans, she immediately established a plan for how she would combat her enemy. When they ordered that "all devices, signs, and flags of the Confederacy shall be suppressed," she responded with a resolve to make new ones. And when those were taken, she would make even more. If they tried to remove the flag she kept pinned to her chest, "the man who dares attempt it - well! a pistol in my pocket fills up the gap."[^delicate_flowers_vignette-2] Dawson saw herself as an active participant in the war effort and was willing to resort to physical violence in the name of the Confederacy. On many occurrences, the war excited her.
+
+[^delicate_flowers_vignette-2]: [Sarah Morgan Dawson, “A Confederate Girl’s Diary: 1842-1909,” (Documenting the South: UNC. Accessed February 12, 2024)](https://www.zotero.org/google-docs/?broken=MNVVUt), 24.
+
+### Word Vector Analysis
+
+Word vector analysis seemed like the obvious choice to distantly view this corpus. Each of these women had a unique writing style and their own preferred vocabularies. Additionally, Southern white women were accustomed to using euphemisms to discuss delicate topics, such as sex.[^delicate_flowers_vignette-3] Word vectors promised to mitigate these complications.
+
+[^delicate_flowers_vignette-3]: E. Susan Barber and Charles F. Ritter, “Dangerous Liaisons: Working Women and Sexual Justice in the American Civil War.” European journal of American studies 10, no. 1 (March 26, 2015).
 
 ```{r}
-
+#| eval: false
 
 prep_word2vec(origin="text files",destination="textfiles.txt",lowercase=T,bundle_ngrams=1)
 
 model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,window=12,iter=3,negative_samples=5)
 ```
 
-### Age as a Factor 
+In order to limit my results to *women's* experiences, I fed the model feminine terms and told it reject masculine ones. The results were surprising. The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation.
+
+This was surprising to me after having read numerous diaries cover to cover. The fourteenth word to appear in this model, "patriotic," is what I expected to find.
+
+```{r}
+wowords <- model[[c("female", "females", "women", "woman", "feminine", "she", "woman's")]] %>% reject(model[[c("male", "males", "men", "man", "masculine", "he", "men's")]])
+model %>% nearest_to(wowords, 100)
+
+head(wowords)
+```
+
+The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation. This was surprising to me after having read numerous diaries cover to cover. The fourteenth word to appear in this model, "patriotic," is what I expected to find.
+
+### Topic Modeling
+
+I ran into the same problem when I attempted to topic model my corpus. The results were logical but they did not align with what I expected to find – defiance, disdain for the Union, and courage.
+
+```{r}
+diary.lda <- LDA(diary.dtm, k = 15, control = list(seed = 12345), method = "Gibbs", alpha = .7)
+diary.lda
+
+diary.topics <- tidy(diary.lda, matrix = "beta")
+head(diary.topics)
+
+diary.top.terms <- diary.topics %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:8)
+
+
+diary.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+### Age as a Factor
+
+It became clear that I was missing something.
 
 ```{r}
 diary_young <- diary_whole_unnest %>% filter(name == "Sarah Morgan Dawson" | name == "Eliza Frances Andrews" | name == "Belle Edmondson" | name == "Emma LeConte" | name == "Sarah Lois Wadley" | name == "Kate S. Carney" | name == "Susan R. Jervey")
