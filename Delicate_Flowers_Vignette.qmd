@@ -81,7 +81,7 @@ prep_word2vec(origin="text files",destination="textfiles.txt",lowercase=T,bundle
 model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,window=12,iter=3,negative_samples=5)
 ```
 
-In order to limit my results to *women's* experiences, I fed the model feminine terms and told it reject masculine ones. The results were surprising. The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation. This aligns with the tone of Belle Edmondson's diary, which I also read, but not Dawson's or Emma LeConte's. The fourteenth word to appear in this model, "patriotic," is what I expected to find. Why were Dawson and LeConte's voices suppressed with this method?
+In order to limit my results to *women's* experiences, I fed the model feminine terms and told it reject masculine ones. The results were surprising. The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation. This aligns with the tone of Margaret Ann Meta Morris Grimball’s diary, which I also read, but not Dawson's or Emma LeConte's. The fourteenth word to appear in this model, "patriotic," is what I expected to find. Why were Dawson and LeConte's voices suppressed with this method?
 
 ```{r}
 wowords <- model[[c("female", "females", "women", "woman", "feminine", "she", "woman's")]] %>% reject(model[[c("male", "males", "men", "man", "masculine", "he", "men's")]])
@@ -91,7 +91,7 @@ model %>% nearest_to(wowords, 100)
 
 ### Topic Modeling
 
-I ran into the same problem when I attempted to topic model my corpus. The results were logical but they did not align with what I expected to find – defiance, disdain for the Union, and courage.
+I ran into the same problem when I attempted to topic model the corpus. The results were logical but they did not align with what I expected to find – defiance, disdain for the Union, and courage.
 
 ```{r}
 diary.lda <- LDA(diary.dtm, k = 15, control = list(seed = 12345), method = "Gibbs", alpha = .7)
@@ -113,9 +113,15 @@ diary.top.terms %>%
   scale_y_reordered()
 ```
 
-### Age as a Factor
+### The Missing Piece
 
-It soon became clear that I was missing something.
+At this point it was clear that I was missing something. Age.
+
+When the Civil War started in 1861, Dawson and LeConte, our poster-children of Confederate women’s bravery, were both teenagers. LeConte was thirteen and Dawson nineteen. Leconte discussed how pivotal these years of life were and described wartime as a “hard school to be bred up in.”[^delicate_flowers_vignette-4] Nevertheless, her dedication to the War effort was stronger and her attitude better than her older counterparts, such as Grimball, whose diary was ridden with anxious thoughts. She was in her fifties when the war started, and she worried for her sons, her health, and the state of her home. When she was asked to be “one of the managers to the Aid Society,” an effort dedicated to clothing Confederate troops and providing relief to the wounded, she declined.[^delicate_flowers_vignette-5] Dawson and LeConte, contrarily, responded to any kind of participation with an eager enthusiasm. By splitting my corpus into two distinct categories by age, I was able to conclude that this phenonemon was not limited to Dawson, LeConte, and Grimball.
+
+[^delicate_flowers_vignette-4]: [Emma LeConte, “Diary, 1864-1865,” (Accessed February 12, 2024](https://www.zotero.org/google-docs/?broken=0ZgaEi)), 13.
+
+[^delicate_flowers_vignette-5]: Margaret Ann Meta Morris Grimball, “Journal of Meta Morris Grimball, South Carolina, December 1860-February 1866: Electronic Version,” (Documenting the South: UNC, 1998), 41.
 
 Each of the topic models below was created using seven Confederate women’s diaries. The first looks at women who were 21 years old or younger when the war started, and the second looks at women who were 26 or older. Although Southern women often married young, in my corpus those under 21 years of age were unmarried. There are more topics in the first model because the young women in this particular sample wrote more than their older counterparts. 
 
@@ -171,10 +177,30 @@ diary.top.terms %>%
   scale_y_reordered()
 ```
 
-Without reading the diaries, it is not immediately apparent what each of these topics are referring to. However, for our purposes here we are looking for a general trend. The topics in Topic Model 1, on the whole, have a more positive connotation. We see words like “hope,” “happy,” “glad,” and “beautiful” appearing in multiple topics. Whether they were discussing activities at home, as we see in Topic 7, or travel as seen in Topic 13, these girls were not overcome with dread. In Topic Model 2, contrarily, we see words like “poor,” “lost,” “dead,” and “wounded” occurring frequently. This is not to say that positive words never appear in Topic Model 2 or negative words in Topic Model 1, but, overall, each topic model has a different tone. This is most evident when comparing a similar topic in each model. Topic Model 1 Topic 1 and Topic Model 2 Topic 2 could both be labeled “War.” 
+The topics in Topic Model 1, on the whole, have a more positive connotation. We see words like “hope,” “happy,” “glad,” and “beautiful” appearing in multiple topics. Whether they were discussing activities at home, as we see in Topic 7, or travel as seen in Topic 13, these girls were not overcome with dread. In Topic Model 2, contrarily, we see words like “poor,” “lost,” “dead,” and “wounded” occurring frequently. This is not to say that positive words never appear in Topic Model 2 or negative words in Topic Model 1, but, overall, each topic model has a different tone. This is most evident when comparing a similar topic in each model. Topic Model 1 Topic 1 and Topic Model 2 Topic 2, for instance, could both be labeled “War.” 
 
 ![](images/Screenshot 2024-04-26 at 11.18.23 PM.png){fig-align="left" width="363"}
 
 ![](images/Screenshot 2024-04-26 at 11.18.57 PM.png){fig-align="right" width="365"}
 
-Across the corpus, younger women talked about hope and peace when they discussed the war, while older women focused on the wounded and the killed. This specific observation is not something that you would immediately notice while reading the texts, but it stands to reason that younger women, who were more enthusiastic about the war effort, would have been more sanguine when discussing it. Whereas the older women, who felt greater pressure to restrain themselves, felt more defenseless and, therefore, lamented their circumstances.
+Across the corpus, younger women talked about hope and peace when they discussed the war (per image 1) while older women focused on the wounded and the killed (per image 2). This specific observation is not something that you would immediately notice while reading the texts, but it stands to reason that younger women, who were more enthusiastic about the war effort, would have been more sanguine when discussing it. Whereas the older women, who felt greater pressure to restrain themselves, felt more defenseless and, therefore, lamented their circumstances.
+
+### Why? 
+
+Bertram Wyatt-Brown’s evaluation of Southern girlhood helps to explain this variation. From birth to “the boys’ ‘clothing’ stage,” around the age of four, girls were raised without much “sexual differentiation” from their peers. This meant that “they too were indulged, fretted over, and given every opportunity to make demands.”[^delicate_flowers_vignette-6] Boys and girls were the same. In the next phase of development, while they were still quite young, girls continued to enjoy “a degree” of indulgence. The societal structures of control had begun working on them, but this is when fathers taught their daughters to ride horses, handle firearms, and even hunt.[^delicate_flowers_vignette-7] This all changed “abruptly” as soon as girls reached menarche, or the first occurrence of menstruation. Almost in a moment, they were forced to “recognize their vulnerability to male aggression.”[^delicate_flowers_vignette-8] As Southern women aged, they began to actively reinforce the standards that men established for them – such as modesty, prudence, and purity.[^delicate_flowers_vignette-9]
+
+[^delicate_flowers_vignette-6]: Bertram Wyatt-Brown, Southern Honor: Ethics and Behavior in the Old South (Oxford University Press, 1982), 231.
+
+[^delicate_flowers_vignette-7]: Wyatt-Brown, Southern Honor: Ethics and Behavior in the Old South, 232.
+
+[^delicate_flowers_vignette-8]: Wyatt-Brown, Southern Honor: Ethics and Behavior in the Old South, 234.
+
+[^delicate_flowers_vignette-9]: Wyatt-Brown, Southern Honor: Ethics and Behavior in the Old South, 228; Elder, “A Twice Sacred Circle,” 583.
+
+These considerations serve to explain why young women were willing to show greater defiance during the War. They were not so far removed from their childhoods, in which they rode horses, shot guns, and ran around with the boys. The idea that these girls were “raised without much sexual differentiation” is evocative of one of Dawson’s diary entries where she wrote, “Pshaw! there are no women here! We are all men!”[^delicate_flowers_vignette-10] The older women in this study, contrarily, had not only felt the pressures of Southern society, but they had adapted to the point that they underpinned the system. Because of this, they likely felt greater pressure to restrain themselves so they felt more defenseless, leading them to lament their circumstances to a greater degree.
+
+[^delicate_flowers_vignette-10]:  Dawson, “A Confederate Girl’s Diary: 1842-1909,” 25. 
+
+### Conclusion 
+
+Digital tools only work if you are familiar with your corpus.
