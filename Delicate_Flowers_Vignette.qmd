@@ -81,18 +81,13 @@ prep_word2vec(origin="text files",destination="textfiles.txt",lowercase=T,bundle
 model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,window=12,iter=3,negative_samples=5)
 ```
 
-In order to limit my results to *women's* experiences, I fed the model feminine terms and told it reject masculine ones. The results were surprising. The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation.
-
-This was surprising to me after having read numerous diaries cover to cover. The fourteenth word to appear in this model, "patriotic," is what I expected to find.
+In order to limit my results to *women's* experiences, I fed the model feminine terms and told it reject masculine ones. The results were surprising. The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation. This aligns with the tone of Belle Edmondson's diary, which I also read, but not Dawson's or Emma LeConte's. The fourteenth word to appear in this model, "patriotic," is what I expected to find. Why were Dawson and LeConte's voices suppressed with this method?
 
 ```{r}
 wowords <- model[[c("female", "females", "women", "woman", "feminine", "she", "woman's")]] %>% reject(model[[c("male", "males", "men", "man", "masculine", "he", "men's")]])
 model %>% nearest_to(wowords, 100)
 
-head(wowords)
 ```
-
-The first fourteen words that appear, most notably "moan," "tear," "weep," "hush," "sobs," "shrill," "lone," "sacrificed," and "screams," carry a disheartened connotation. This was surprising to me after having read numerous diaries cover to cover. The fourteenth word to appear in this model, "patriotic," is what I expected to find.
 
 ### Topic Modeling
 
@@ -120,7 +115,9 @@ diary.top.terms %>%
 
 ### Age as a Factor
 
-It became clear that I was missing something.
+It soon became clear that I was missing something.
+
+Each of the topic models below was created using seven Confederate women’s diaries. The first looks at women who were 21 years old or younger when the war started, and the second looks at women who were 26 or older. Although Southern women often married young, in my corpus those under 21 years of age were unmarried. There are more topics in the first model because the young women in this particular sample wrote more than their older counterparts. 
 
 ```{r}
 diary_young <- diary_whole_unnest %>% filter(name == "Sarah Morgan Dawson" | name == "Eliza Frances Andrews" | name == "Belle Edmondson" | name == "Emma LeConte" | name == "Sarah Lois Wadley" | name == "Kate S. Carney" | name == "Susan R. Jervey")
@@ -173,3 +170,11 @@ diary.top.terms %>%
   facet_wrap(~ topic, scales = "free") +
   scale_y_reordered()
 ```
+
+Without reading the diaries, it is not immediately apparent what each of these topics are referring to. However, for our purposes here we are looking for a general trend. The topics in Topic Model 1, on the whole, have a more positive connotation. We see words like “hope,” “happy,” “glad,” and “beautiful” appearing in multiple topics. Whether they were discussing activities at home, as we see in Topic 7, or travel as seen in Topic 13, these girls were not overcome with dread. In Topic Model 2, contrarily, we see words like “poor,” “lost,” “dead,” and “wounded” occurring frequently. This is not to say that positive words never appear in Topic Model 2 or negative words in Topic Model 1, but, overall, each topic model has a different tone. This is most evident when comparing a similar topic in each model. Topic Model 1 Topic 1 and Topic Model 2 Topic 2 could both be labeled “War.” 
+
+![](images/Screenshot 2024-04-26 at 11.18.23 PM.png){fig-align="left" width="363"}
+
+![](images/Screenshot 2024-04-26 at 11.18.57 PM.png){fig-align="right" width="365"}
+
+Across the corpus, younger women talked about hope and peace when they discussed the war, while older women focused on the wounded and the killed. This specific observation is not something that you would immediately notice while reading the texts, but it stands to reason that younger women, who were more enthusiastic about the war effort, would have been more sanguine when discussing it. Whereas the older women, who felt greater pressure to restrain themselves, felt more defenseless and, therefore, lamented their circumstances.
