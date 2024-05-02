@@ -75,7 +75,7 @@ Word vector analysis seemed like the obvious choice to distantly view this corpu
 
 ```{r}
 #| eval: false
-
+# Need to wrap these in an if statement so that if the file generated exists, it doesn't rerun the model, it just loads the model file (.txt or .bin respectively)
 prep_word2vec(origin="text files",destination="textfiles.txt",lowercase=T,bundle_ngrams=1)
 
 model = train_word2vec("textfiles.txt","textfiles.bin",vectors=400,threads=6,window=12,iter=3,negative_samples=5)
